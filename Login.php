@@ -1,54 +1,34 @@
 <?php
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST");
-header("Access-Control-Allow-Headers: Content-Type");
+# Login
+include "./KoneksiDB.php"; 
 
-# Database Connection
-$host = "localhost";
-$user = "root";
-$pass = "";
-$db   = "versatile";
+session_start();
 
-$connect = mysqli_connect($host, $user, $pass, $db);
+if (isset($_POST['next'])) {
 
-if (mysqli_connect_error()) {
-    echo mysqli_connect_error();
-    exit();
-}
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email    = isset($_POST['email']) ? $_POST['email'] : null;
-    $password = isset($_POST['pwd']) ? $_POST['pwd'] : null;
+        $email    = htmlspecialchars($_POST['email']);
+        $password = htmlspecialchars($_POST['pwd']);
 
-    if ($email && $password) {
-        $sql    = "SELECT * FROM users WHERE email = '$email' AND pwd = '$password'";
-        $result = mysqli_query($connect, $sql);
+        if (!empty($email) && !empty($password)) {
 
-        if ($result) {
-            $row = mysqli_fetch_assoc($result);
+            // Validasi login di database, contoh:
+            $sql = "SELECT * FROM users WHERE email='$email' AND pwd='$password'";
+            $result = mysqli_query($connect, $sql);
 
-            if ($row) {
-                # Start session
-                session_start();
-
-                # Set session variables
-                $_SESSION['user'] = $email;
-
-                echo json_encode(['success' => true, 'message' => 'Login successful']);
+            if (mysqli_num_rows($result) > 0) {
+                $_SESSION['email'] = $email;
+                header('Location: http://localhost:3000/dashboard'); // Pindah ke DashboardPage.jsx jika login berhasil
             } else {
-                echo json_encode(['success' => false, 'message' => 'Invalid email or password']);
-                
+                echo "Invalid email or password!";
             }
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Error executing query']);
-        }
-    } else {
-        echo json_encode(['success' => false, 'message' => 'Email and password are required']);
-        
 
+        } else {
+            echo "Your email and password not filled!";
+        }
     }
 } else {
-    echo json_encode(['success' => false, 'message' => 'Invalid request method']);
-
-} 
+    header('Location: http://localhost:3000/home');
+}
 ?>
