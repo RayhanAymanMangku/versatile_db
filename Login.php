@@ -23,6 +23,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($email && $password) {
         $sql    = "SELECT * FROM users WHERE email = '$email' AND pwd = '$password'";
         $result = mysqli_query($connect, $sql);
+        
+        
 
         if ($result) {
             $row = mysqli_fetch_assoc($result);
@@ -31,10 +33,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 # Start session
                 session_start();
 
+
                 # Set session variables
                 $_SESSION['user'] = $email;
 
-                echo json_encode(['success' => true, 'message' => 'Login successful']);
+                // $resultUser = json_encode($result);
+
+                echo json_encode(['success' => true, 'message' => 'Login successful', 'data' => $row]);
             } else {
                 echo json_encode(['success' => false, 'message' => 'Invalid email or password']);
                 
